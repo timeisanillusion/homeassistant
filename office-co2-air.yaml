@@ -1,0 +1,57 @@
+esphome:
+  name: "office-co2-air"
+  friendly_name: office-co2-air
+
+esp8266:
+  board: d1
+
+# Enable logging
+logger:
+  baud_rate: 0
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret key
+
+ota:
+- platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  #use_address: 192.168.107.55
+  domain: .hyrulemk2.local
+
+
+i2c:
+  ## I²C Port - For Temp/Humidity/Pressure & CO²/VOC Sensors
+  scl: GPIO4
+  sda: GPIO5
+  scan: true
+  id: bus_a
+
+sensor:
+  - platform: aht10
+    variant: AHT20
+    temperature:
+      name: "Temperature Sensor"
+      id: aht10_id_temperature_sensor
+    humidity:
+      name: "Office Humidity"
+      id: aht10_id_humidity_sensor
+    update_interval: 60s
+    address: 0x38
+  - platform: ens160_i2c
+    eco2:
+      name: "eCO2"
+    tvoc:
+      name: "Total Volatile Organic Compounds"
+    aqi:
+      name: "Air Quality Index"
+      id: ens160_air_quality_index
+    update_interval: 60s
+    address: 0x53
+    compensation:
+      temperature: aht10_id_temperature_sensor
+      humidity: aht10_id_humidity_sensor
